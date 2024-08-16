@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
-
+import axios from "axios";
+axios.defaults.withCredentials=true
 function SignUp():React.JSX.Element{
     const passRef=useRef<HTMLInputElement>(null)
     const [notAMatch,setNotAMatch]=useState<boolean>(false)
@@ -8,9 +9,31 @@ function SignUp():React.JSX.Element{
         
         setNotAMatch(!(e.target.value===passRef.current?.value))
     }
+    const handleSignUp=(e:React.FormEvent<HTMLFormElement>)=>{
+        e.preventDefault()
+        
+        const detail:UserDetail={
+            username:e.target[0].value,
+            password:e.target[1].value
+        }
+        
+        // axios.get("http://localhost:8080/prefs/xo",
+        //     {
+        //         headers
+        //     }
+        // ).then(res=>res.data)
+        // .then(data=>console.log(data))
+        axios.post(
+            "http://localhost:8080/register",
+            detail
+            
+        )
+        .then(c=>console.log(c))
+        
+    }
     
-    
-    return <form className="flex justify-center bg-white 
+    return <form onSubmit={handleSignUp}
+    className="flex justify-center bg-white 
     flex-col py-24 px-8 rounded-2xl border-l border-b shadow-md
     gap-8 
     ">

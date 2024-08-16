@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/login")
 
                 )
+                .sessionManagement(session->session.sessionFixation().migrateSession())
                 .cors(c->c.configurationSource(corsConfigurationSource()));
 
 

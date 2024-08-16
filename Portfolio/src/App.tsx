@@ -3,7 +3,7 @@ import SignUp from "./Components/Authentication/SignUp"
 function App() {
 
   return <div className="flex h-lvh w-full justify-center items-center bg-zinc-100">
-   <Login/>
+    <SignUp/>
 
   </div>
   

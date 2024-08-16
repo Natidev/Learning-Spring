@@ -4,6 +4,7 @@ import com.security.xo.services.UserService;
 import com.security.xo.type.PostUserDetail;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -42,14 +43,24 @@ public class WebController {
 
     @PostMapping("/register")
     public ResponseEntity<Void> SignUp(
-            @RequestBody PostUserDetail detail
+            @RequestBody PostUserDetail detail,
+            HttpServletResponse response,
+            HttpServletRequest request
     ){
+        System.out.println(detail.username());
         if(userService.userExists(detail.username()))
             return ResponseEntity
                 .noContent()
                 .build();
 
         userService.register(detail);
+
+        // Add JSESSIONID cookie to the response
+        Cookie jsessionidCookie = new Cookie("JSESSIONID", request.getSession(true).getId());
+        jsessionidCookie.setHttpOnly(true);
+        jsessionidCookie.setPath("/");
+        response.addCookie(jsessionidCookie);
+
         return ResponseEntity.ok().build();
     }
     @PostMapping("/login")
@@ -62,8 +73,7 @@ public class WebController {
                 .value(vard)
                 .maxAge(Duration.ofSeconds(600))
                 .build();
-        Cookie cookie1 = request.getCookies()[0];
-        System.out.println(cookie1.getName()+cookie1.getValue());
+
 
         return ResponseEntity
                 .noContent()
