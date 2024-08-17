@@ -1,7 +1,9 @@
 package com.security.xo.controller;
 
+import com.security.xo.services.JwtService;
 import com.security.xo.services.UserService;
 import com.security.xo.type.PostUserDetail;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +26,22 @@ import java.time.Duration;
 @CrossOrigin
 public class WebController {
 
-    private static final String ky;
+
+    JwtService jwt;
     JdbcTemplate jdbc;
     UserService userService;
     AuthenticationManager authenticationManager;
+    UserDetailsService userDetailsService;
+    @Autowired
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    @Autowired
+        public void setJwt(JwtService jwt) {
+            this.jwt = jwt;
+        }
+
     @Autowired
     public void setJdbc(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
@@ -42,7 +57,7 @@ public class WebController {
 
     @GetMapping
     public ResponseEntity<String> Hello(){
-        return ResponseEntity.ok("Hello world"+ky);
+        return ResponseEntity.ok("Hello world");
     }
 
 
@@ -69,13 +84,21 @@ public class WebController {
         return ResponseEntity.ok().build();
     }
     @PostMapping("/login")
-    public ResponseEntity<Void> authenticate(
+    public ResponseEntity<String> authenticate(
             @RequestBody PostUserDetail detail
     ){
         Authentication auth=authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(detail.username(),detail.password()));
-        if(auth.isAuthenticated())
-            return ResponseEntity.noContent().build();
+        System.out.println(auth.isAuthenticated());
+        if(auth.isAuthenticated()){
+            String cookie=ResponseCookie
+                    .from("token", jwt.generateToken(userDetailsService.loadUserByUsername(detail.username())))
+                    .build()
+                    .toString();
+            return ResponseEntity.noContent()
+                    .header("Set-Cookie",cookie)
+                    .build();
+        }
         else throw new  UsernameNotFoundException("couldn't find user");
     }
     @GetMapping("/prefs/{vard}")

@@ -24,11 +24,9 @@ function Login(): React.JSX.Element{
         //     }
         // ).then(res=>res.data)
         // .then(data=>console.log(data))
-        axios.get(
-            "http://localhost:8080/prefs/shlm",
-            {
-                headers
-            }
+        axios.post(
+            "http://localhost:8080/login",
+            detail
         )
         .then(c=>console.log(c))
         

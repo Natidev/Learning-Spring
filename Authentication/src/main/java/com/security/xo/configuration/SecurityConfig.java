@@ -36,9 +36,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
                 .authorizeHttpRequests(a-> a
-//                        .requestMatchers(GET,"/").permitAll()
-                        .requestMatchers(POST,"/register","/login").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers(GET,"/").permitAll()
+                        .requestMatchers(POST,"/login","/register").permitAll()
+                        .anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults())
                 .csrf(csrf->csrf.ignoringRequestMatchers("/register")
                         .ignoringRequestMatchers("/register/*")

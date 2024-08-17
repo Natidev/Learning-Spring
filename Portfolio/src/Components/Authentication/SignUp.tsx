@@ -28,7 +28,8 @@ function SignUp():React.JSX.Element{
             detail
             
         )
-        .then(c=>console.log(c))
+        .then(c=>c.data)
+        .then(data=>console.log(data))
         
     }
     
