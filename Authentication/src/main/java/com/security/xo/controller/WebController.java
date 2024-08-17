@@ -6,6 +6,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import java.time.Duration;
 @CrossOrigin
 public class WebController {
 
+    private static final String ky;
     JdbcTemplate jdbc;
     UserService userService;
     AuthenticationManager authenticationManager;
@@ -40,7 +42,7 @@ public class WebController {
 
     @GetMapping
     public ResponseEntity<String> Hello(){
-        return ResponseEntity.ok("Hello world");
+        return ResponseEntity.ok("Hello world"+ky);
     }
 
 
