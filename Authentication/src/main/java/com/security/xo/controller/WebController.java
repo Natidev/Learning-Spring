@@ -11,6 +11,9 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -64,8 +67,14 @@ public class WebController {
         return ResponseEntity.ok().build();
     }
     @PostMapping("/login")
-    public ResponseEntity<Void> authenticate(){
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> authenticate(
+            @RequestBody PostUserDetail detail
+    ){
+        Authentication auth=authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(detail.username(),detail.password()));
+        if(auth.isAuthenticated())
+            return ResponseEntity.noContent().build();
+        else throw new  UsernameNotFoundException("couldn't find user");
     }
     @GetMapping("/prefs/{vard}")
     public ResponseEntity<String> cookies(@PathVariable("vard") String vard, HttpServletRequest request){
