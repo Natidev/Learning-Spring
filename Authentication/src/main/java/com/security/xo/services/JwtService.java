@@ -42,12 +42,20 @@ public class JwtService {
         byte[] decodedKy=ky.getBytes();
         return Keys.hmacShaKeyFor(decodedKy);
     }
-    String getUserName(String jwt){
-        Claims claims=Jwts.parser()
+    public String getUserName(String jwt){
+        Claims claims=getClaims(jwt);
+        return claims.getSubject();
+    }
+    public boolean checkTokenValidity(String jwt){
+        Claims claims=getClaims(jwt);
+        return claims.getExpiration().after(Date.from(Instant.now()));
+
+    }
+    Claims getClaims(String jwt){
+        return Jwts.parser()
                 .verifyWith(generateKey())
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload();
-        return claims.getSubject();
     }
 }

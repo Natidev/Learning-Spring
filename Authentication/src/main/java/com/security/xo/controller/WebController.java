@@ -89,12 +89,12 @@ public class WebController {
     ){
         Authentication auth=authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(detail.username(),detail.password()));
-        System.out.println(auth.isAuthenticated());
         if(auth.isAuthenticated()){
             String cookie=ResponseCookie
                     .from("token", jwt.generateToken(userDetailsService.loadUserByUsername(detail.username())))
                     .build()
                     .toString();
+            System.out.println(cookie);
             return ResponseEntity.noContent()
                     .header("Set-Cookie",cookie)
                     .build();
