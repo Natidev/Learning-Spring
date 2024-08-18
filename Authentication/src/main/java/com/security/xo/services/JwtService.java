@@ -43,7 +43,9 @@ public class JwtService {
         return Keys.hmacShaKeyFor(decodedKy);
     }
     public String getUserName(String jwt){
+
         Claims claims=getClaims(jwt);
+        System.out.println(claims.getExpiration().toString());
         return claims.getSubject();
     }
     public boolean checkTokenValidity(String jwt){

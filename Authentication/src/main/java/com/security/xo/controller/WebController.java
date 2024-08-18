@@ -67,6 +67,7 @@ public class WebController {
             HttpServletResponse response,
             HttpServletRequest request
     ){
+
         System.out.println(detail.username());
         if(userService.userExists(detail.username()))
             return ResponseEntity
@@ -92,6 +93,8 @@ public class WebController {
         if(auth.isAuthenticated()){
             String cookie=ResponseCookie
                     .from("token", jwt.generateToken(userDetailsService.loadUserByUsername(detail.username())))
+                    .httpOnly(true)
+                    //.secure(true)
                     .build()
                     .toString();
             System.out.println(cookie);

@@ -1,7 +1,10 @@
 import React, { useRef, useState } from "react";
 import axios from "axios";
+import { formState } from "../types/types";
 axios.defaults.withCredentials=true
-function SignUp():React.JSX.Element{
+function SignUp(
+    {setSignIn}:formState
+):React.JSX.Element{
     const passRef=useRef<HTMLInputElement>(null)
     const [notAMatch,setNotAMatch]=useState<boolean>(false)
     const confirmPassword=(e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -59,12 +62,19 @@ function SignUp():React.JSX.Element{
             }}/>
             {notAMatch && <p className="text-red-500">Password does not match </p>}
         </label>
-        
+        <span className="flex justify-around">
+        <button onClick={e=>setSignIn("sign-in")} 
+            className=" font-normal text-blue-500 bg-transparent w-min py-2 px-6 rounded-xl
+            self-start text-nowrap">
+                Login
+            </button>
         <button type="submit" 
         className=" font-bold text-white bg-blue-500 w-min py-2 px-6 rounded-xl
         self-end">
             SignUp
         </button>
+        </span>
+
         </form>
 }
 export default SignUp;
