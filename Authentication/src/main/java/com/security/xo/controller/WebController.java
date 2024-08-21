@@ -78,7 +78,7 @@ public class WebController {
 
         // Add JSESSIONID cookie to the response
         Cookie jsessionidCookie = new Cookie("JSESSIONID", request.getSession(true).getId());
-        jsessionidCookie.setHttpOnly(true);
+       // jsessionidCookie.setHttpOnly(true);
         jsessionidCookie.setPath("/");
         response.addCookie(jsessionidCookie);
 
@@ -116,6 +116,11 @@ public class WebController {
                 .noContent()
                 .header(HttpHeaders.SET_COOKIE,cookie.toString()).build();
 
+    }
+    @GetMapping("/lg/test")
+    @ResponseBody
+    public boolean cookieauthtest(){
+        return true;
     }
 
 
