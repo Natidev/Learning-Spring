@@ -1,9 +1,0 @@
-spring:
-  application:
-    name: xo
-  datasource:
-    url: ${DBURL}
-    username: ${DBUSER}
-    password: ${DBPASSWORD}
-
-

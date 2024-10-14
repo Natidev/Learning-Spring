@@ -1,16 +1,23 @@
 package com.security.xo.controller;
 
+import com.security.xo.services.JwtService;
 import com.security.xo.services.UserService;
 import com.security.xo.type.PostUserDetail;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -19,9 +26,22 @@ import java.time.Duration;
 @CrossOrigin
 public class WebController {
 
+
+    JwtService jwt;
     JdbcTemplate jdbc;
     UserService userService;
     AuthenticationManager authenticationManager;
+    UserDetailsService userDetailsService;
+    @Autowired
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    @Autowired
+        public void setJwt(JwtService jwt) {
+            this.jwt = jwt;
+        }
+
     @Autowired
     public void setJdbc(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
@@ -47,6 +67,7 @@ public class WebController {
             HttpServletResponse response,
             HttpServletRequest request
     ){
+
         System.out.println(detail.username());
         if(userService.userExists(detail.username()))
             return ResponseEntity
@@ -64,8 +85,24 @@ public class WebController {
         return ResponseEntity.ok().build();
     }
     @PostMapping("/login")
-    public ResponseEntity<Void> authenticate(){
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> authenticate(
+            @RequestBody PostUserDetail detail
+    ){
+        Authentication auth=authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(detail.username(),detail.password()));
+        if(auth.isAuthenticated()){
+            String cookie=ResponseCookie
+                    .from("token", jwt.generateToken(userDetailsService.loadUserByUsername(detail.username())))
+                    .httpOnly(true)
+                    //.secure(true)
+                    .build()
+                    .toString();
+            System.out.println(cookie);
+            return ResponseEntity.noContent()
+                    .header("Set-Cookie",cookie)
+                    .build();
+        }
+        else throw new  UsernameNotFoundException("couldn't find user");
     }
     @GetMapping("/prefs/{vard}")
     public ResponseEntity<String> cookies(@PathVariable("vard") String vard, HttpServletRequest request){
