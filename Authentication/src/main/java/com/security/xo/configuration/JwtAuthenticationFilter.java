@@ -34,25 +34,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader=request.getHeader("Authorization");
-        if(authHeader==null|| !authHeader.startsWith("Bearer")) {
-            filterChain.doFilter(request, response);
+        System.out.println(authHeader);
+        if(request.getRequestURI().equals("/login") || request.getRequestURI().equals("/register"))
+        {
+            filterChain.doFilter(request,response);
             return;
         }
 
-        String username=jwtService.getUserName(authHeader.substring(7));
+        if(authHeader==null|| !authHeader.startsWith("Bearer")) {
+            //filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
 
+        }
+
+        String username=jwtService.getUserName(authHeader.substring(7));
+        System.out.println(username);
         if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
             UserDetails user=userDetailsService.loadUserByUsername(username);
             if(user!=null && jwtService.checkTokenValidity(authHeader.substring(7))){
                 UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
-                        user.getPassword(),
+                        null,
                         user.getAuthorities()
                 );
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
-
+        filterChain.doFilter(request, response);
     }
 }

@@ -34,12 +34,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+        System.out.println("Filter chain");
         http
                 .authorizeHttpRequests(a-> a
-                        .requestMatchers(GET,"/").permitAll()
+                      //  .requestMatchers(GET,"/","/prefs/").authenticated()
                         .requestMatchers(POST,"/login","/register").permitAll()
-                        .anyRequest().permitAll())
-                .httpBasic(Customizer.withDefaults())
+                        .anyRequest().permitAll()
+                )
                 .csrf(csrf->csrf.ignoringRequestMatchers("/register")
                         .ignoringRequestMatchers("/register/*")
                         .ignoringRequestMatchers("/login")

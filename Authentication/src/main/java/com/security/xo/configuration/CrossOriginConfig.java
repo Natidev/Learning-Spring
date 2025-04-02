@@ -20,10 +20,9 @@ public class CrossOriginConfig implements CorsConfigurationSource {
                 .setAllowedMethods(List.of("POST","GET"));
 
        Enumeration<String> a=request.getHeaderNames();
-       var b=a.asIterator();
-       while(b.hasNext())
-           System.out.println(b.next());
-
+//       var b=a.asIterator();
+//       while(b.hasNext())
+//           System.out.println(b.next());
         return cors;
     }
 

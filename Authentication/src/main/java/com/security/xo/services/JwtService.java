@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class JwtService {
-    @Value("${my.custom.jwtkey}")
+    @Value("${JWTKEY}")
     String ky;
     Long valdity= TimeUnit.MINUTES.toMillis(60);
     public String generateToken(UserDetails userDetails){

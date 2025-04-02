@@ -97,7 +97,6 @@ public class WebController {
                     //.secure(true)
                     .build()
                     .toString();
-            System.out.println(cookie);
             return ResponseEntity.noContent()
                     .header("Set-Cookie",cookie)
                     .build();
@@ -115,7 +114,6 @@ public class WebController {
         return ResponseEntity
                 .noContent()
                 .header(HttpHeaders.SET_COOKIE,cookie.toString()).build();
-
     }
 
 
