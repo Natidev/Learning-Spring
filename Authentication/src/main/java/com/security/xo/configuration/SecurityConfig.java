@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -35,7 +36,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         System.out.println("Filter chain");
-        http
+        http.headers(
+                h->h.xssProtection(
+                        r->r.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                        .contentSecurityPolicy(
+                        p->p.policyDirectives("script-src 'self'")
+                ))
                 .authorizeHttpRequests(a-> a
                       //  .requestMatchers(GET,"/","/prefs/").authenticated()
                         .requestMatchers(POST,"/login","/register").permitAll()
@@ -46,6 +52,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/login")
 
                 )
+                .formLogin(Customizer.withDefaults())
                 .sessionManagement(session->session.sessionFixation().migrateSession())
                 .cors(c->c.configurationSource(corsConfigurationSource()));
 
