@@ -35,7 +35,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        System.out.println("Filter chain");
+//        System.out.println("Filter chain");
         http.headers(
                 h->h.xssProtection(
                         r->r.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/login")
 
                 )
-                .formLogin(Customizer.withDefaults())
+                //.formLogin(Customizer.withDefaults())
                 .sessionManagement(session->session.sessionFixation().migrateSession())
                 .cors(c->c.configurationSource(corsConfigurationSource()));
 
