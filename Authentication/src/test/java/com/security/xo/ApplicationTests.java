@@ -13,8 +13,14 @@ class ApplicationTests {
 
 RestTemplate template=new RestTemplate();
 	Logger logger= LoggerFactory.getLogger(ApplicationTests.class);
-	String url="http://localhost:8080/";
-	String token= "eyJhbGciOiJIUzUxMiJ9.eyJtc2ciOiJwbHMgd29yayIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCIsImlhdCI6MTc0MzYxNDI3MiwiZXhwIjoxNzQzNjE3ODcyLCJzdWIiOiJicm9jb2xsaSJ9.faA5e6rzteLkBParXsWD8m07JqwEBHzKciDH-c17M01mcWWvSr9gnmnN8y94NxBVfz0xKDYNJ1iSvkqijFr4ew";
+	String url="http://localhost:8080";
+	String token="eyJhbGciOiJIUzUxMiJ9.eyJtc2ciOiJwbHMgd29yayIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCIsImlhdCI6MTc0NDkxMTcyMSwiZXhwIjoxNzQ0OTE1MzIxLCJzdWIiOiJ0ZXN0VXNlciJ9.Mbm7tmFOYHDedSjKxn2i39SPI6Lb2Mw6LAhkWCgX83hsH_XKPuBStMvoyk44cd30uh5za38AAb-ri9jI93WF6A";
+	HttpEntity<String> getAuth(){
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Bearer "+token);
+        return new HttpEntity<>(headers);
+	}
+
 	@Test
 	void contextLoads() {
 
@@ -37,7 +43,7 @@ RestTemplate template=new RestTemplate();
 				new PostUserDetail("testuser","testpassword"),
 				String.class
 		);
-		assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.FOUND);
+		assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 	}
 	@Test
 	void useProtectedRoute(){
@@ -55,21 +61,48 @@ try{
 	}
 	@Test
 	void useProtectedRouteWithToken(){
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "Bearer "+token);
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-		ResponseEntity<String> response = template.exchange(url, HttpMethod.GET, entity, String.class);
-		assertThat(response.getBody()).isEqualTo("Hello world")	;
+
+		ResponseEntity<String> response = template.exchange(url, HttpMethod.GET, getAuth(), String.class);
+		assertThat(response.getBody()).isEqualTo("Hello, ")	;
 	}
 	@Test
 	void crossSiteScriptingProtectionTest(){
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "Bearer "+token);
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-		ResponseEntity<String> response = template.exchange(url, HttpMethod.GET, entity, String.class);
+
+		ResponseEntity<String> response = template.exchange(url, HttpMethod.GET, getAuth(), String.class);
 		var c=response.getHeaders().get("X-XSS-Protection");
         assert c != null;
         assert c.getFirst() != null;
 		assertThat(c.getFirst()).isEqualTo("1; mode=block");
+	}
+	@Test
+	void shouldRemoveScriptTags() {
+		String maliciousInput = "<script>alert('XSS')</script>Attacker";
+		ResponseEntity<String> response = template.exchange(url+"?name="+maliciousInput, HttpMethod.GET, getAuth(), String.class);
+		assertThat(response.getBody()).isEqualTo("Hello, Attacker");
+	}
+
+	@Test
+	void shouldAllowSafeHtml() {
+		String safeInput = "<p>Hello <strong>World</strong></p>";
+		var response = template.exchange(url+"?name="+safeInput, HttpMethod.GET, getAuth(), String.class);
+		assertThat(response.getBody()).isEqualTo("Hello, "+safeInput);
+	}
+
+	@Test
+	void shouldEncodeSpecialCharacters() {
+		String sqlInjection = "admin' OR '1'='1";
+		var response = template.exchange(url+"?name="+sqlInjection, HttpMethod.GET, getAuth(), String.class);
+		System.out.println(sqlInjection);
+		System.out.println(response.getBody());
+		assertThat(response.getBody()).isNotEqualTo("Hello, "+sqlInjection);
+
+	}
+
+	@Test
+	void shouldPreserveLegitLinks() {
+		String link = "<a href=\"https://example.com\">Safe</a>";
+		var response = template.exchange(url+"?name="+link, HttpMethod.GET, getAuth(), String.class);
+		assertThat(response.getBody()).isEqualTo("Hello, <a href=\"https://example.com\" rel=\"nofollow\">Safe</a>");
+
 	}
 }

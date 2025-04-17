@@ -7,6 +7,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +34,11 @@ public class WebController {
     UserService userService;
     AuthenticationManager authenticationManager;
     UserDetailsService userDetailsService;
+    private static final PolicyFactory SANITIZER = Sanitizers.FORMATTING
+            .and(Sanitizers.LINKS)
+            .and(Sanitizers.BLOCKS)
+            .and(Sanitizers.IMAGES)
+            .and(Sanitizers.STYLES);
     @Autowired
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -56,8 +63,10 @@ public class WebController {
     }
 
     @GetMapping
-    public ResponseEntity<String> Hello(){
-        return ResponseEntity.ok("Hello world");
+    public ResponseEntity<String> Hello(
+            @RequestParam(defaultValue = "") String name
+    ){
+        return ResponseEntity.ok("Hello, "+SANITIZER.sanitize(name));
     }
 
 
@@ -68,7 +77,7 @@ public class WebController {
             HttpServletRequest request
     ){
 
-        System.out.println(detail.username());
+//        System.out.println(detail.username());
         if(userService.userExists(detail.username()))
             return ResponseEntity
                 .noContent()
