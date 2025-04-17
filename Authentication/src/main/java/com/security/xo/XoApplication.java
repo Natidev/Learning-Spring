@@ -1,11 +1,11 @@
 package com.security.xo;
-
-import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
-import javax.crypto.SecretKey;
 
 @SpringBootApplication
 public class XoApplication {
@@ -14,5 +14,6 @@ public class XoApplication {
 		SpringApplication.run(XoApplication.class, args);
 
 	}
+
 
 }

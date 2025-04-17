@@ -18,9 +18,11 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class JwtService {
+
     @Value("${JWTKEY}")
     String ky;
     Long valdity= TimeUnit.MINUTES.toMillis(60);
+
     public String generateToken(UserDetails userDetails){
         Map<String,String> claims=new HashMap<>();
         claims.put("iss","http://localhost:8080");
@@ -45,7 +47,7 @@ public class JwtService {
     public String getUserName(String jwt){
 
         Claims claims=getClaims(jwt);
-        System.out.println(claims.getExpiration().toString());
+//        System.out.println(claims.getExpiration().toString());
         return claims.getSubject();
     }
     public boolean checkTokenValidity(String jwt){
